@@ -52,3 +52,22 @@ resource "aws_iam_role_policy_attachment" "container_registry_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.node_group.name
 }
+
+data "aws_iam_policy_document" "external_dns_node_group" {
+  statement {
+    actions = [
+      "route53:*",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "external_dns_node_group" {
+  name   = "external-dns-node-group"
+  policy = data.aws_iam_policy_document.external_dns_node_group.json
+}
+
+resource "aws_iam_role_policy_attachment" "external_dns_node_group" {
+  policy_arn = aws_iam_policy.external_dns_node_group.arn
+  role       = aws_iam_role.node_group.name
+}
