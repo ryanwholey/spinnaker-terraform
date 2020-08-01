@@ -1,9 +1,3 @@
-provider "helm" {
-  kubernetes {
-    config_path = var.kubeconfig
-  }
-}
-
-provider "kubernetes" {
-  config_path = var.kubeconfig
+provider "spinnaker" {
+  server = data.terraform_remote_state.platform.outputs.spinnaker_gateway_dns
 }

@@ -42,13 +42,13 @@ resource "aws_eks_cluster" "cluster" {
 }
 
 resource "local_file" "kubeconfig" {
-    content  = templatefile("${path.module}/templates/kubeconfig", {
-      cluster_arn = aws_eks_cluster.cluster.arn
-      ca_data = aws_eks_cluster.cluster.certificate_authority[0].data
-      endpoint = aws_eks_cluster.cluster.endpoint
-      cluster_name = var.cluster
-      aws_profile = var.aws_profile
-      aws_region = var.aws_default_region
-    })
-    filename = "${path.module}/build/kubeconfig"
+  content  = templatefile("${path.module}/templates/kubeconfig", {
+    cluster_arn = aws_eks_cluster.cluster.arn
+    ca_data = aws_eks_cluster.cluster.certificate_authority[0].data
+    endpoint = aws_eks_cluster.cluster.endpoint
+    cluster_name = var.cluster
+    aws_profile = var.aws_profile
+    aws_region = var.aws_default_region
+  })
+  filename = "${path.module}/build/kubeconfig"
 }
