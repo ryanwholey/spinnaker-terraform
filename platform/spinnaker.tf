@@ -49,7 +49,7 @@ resource "kubernetes_secret" "spinnaker_kubeconfig" {
       ]
       contexts = [
         {
-          name = "default-context"
+          name = "ryans-context"
           context = {
             cluster   = data.terraform_remote_state.kubernetes.outputs.cluster_id
             namespace = "default"
@@ -57,7 +57,7 @@ resource "kubernetes_secret" "spinnaker_kubeconfig" {
           }
         }
       ]
-      "current-context" = "default-context"
+      "current-context" = "ryans-context"
       users = [
         {
           name = kubernetes_service_account.spinnaker.metadata[0].name
@@ -82,13 +82,28 @@ resource "helm_release" "spinnaker" {
         enabled           = true
         secretName        = kubernetes_secret.spinnaker_kubeconfig.metadata[0].name
         secretKey         = "config"
-        deploymentContext = "default-context"
+        deploymentContext = "ryans-context"
         contexts = [
-          "default-context"
+          "ryans-context"
         ]
       }
+      dockerRegistries = [
+        {
+          name    = "dockerhub"
+          address = "index.docker.io"
+          repositories = [
+            "library/alpine",
+            "library/ubuntu",
+            "library/centos",
+            "library/nginx",
+            "ryanwholey/test-app"
+          ]
+        }
+      ]
     })
   ]
+
+  depends_on = [kubernetes_cluster_role_binding.spinnaker]
 }
 
 data "kubernetes_service" "spin_deck" {

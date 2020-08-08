@@ -8,7 +8,8 @@ resource "aws_acm_certificate" "eks" {
 }
 
 resource "aws_acm_certificate_validation" "eks" {
-  certificate_arn = aws_acm_certificate.eks.arn
+  certificate_arn         = aws_acm_certificate.eks.arn
+  validation_record_fqdns = [aws_route53_record.validation.fqdn]
 }
 
 resource "aws_route53_record" "validation" {

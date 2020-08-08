@@ -24,22 +24,18 @@ resource "aws_subnet" "private" {
   }
 }
 
-resource "aws_eip" "nats" {
-  for_each = aws_subnet.public
-
+resource "aws_eip" "nat" {
   vpc = true
 }
 
-resource "aws_nat_gateway" "nats" {
-  for_each = aws_subnet.public
-
-  allocation_id = aws_eip.nats[each.key].id
-  subnet_id     = each.value.id
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = [for subnet in aws_subnet.public: subnet.id][0]
 
   depends_on = [aws_internet_gateway.gateway]
 
   tags = {
-    Name = "${var.prefix}-${each.key}"
+    Name = var.prefix
   }
 }
 
@@ -58,7 +54,7 @@ resource "aws_route" "private" {
 
   destination_cidr_block = "0.0.0.0/0"
   route_table_id         = aws_route_table.private[each.key].id
-  nat_gateway_id         = aws_nat_gateway.nats[each.key].id
+  nat_gateway_id         = aws_nat_gateway.nat.id
 }
 
 resource "aws_route_table_association" "private" {
@@ -67,4 +63,3 @@ resource "aws_route_table_association" "private" {
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private[each.key].id
 }
-
