@@ -100,6 +100,39 @@ resource "helm_release" "spinnaker" {
           ]
         }
       ]
+      halyard = {
+        additionalScripts = {
+          create = true
+          data = {
+            "add-gh-artifact" = <<-EOF
+              source /opt/halyard/additionalConfigMaps/env.sh
+              $HAL_COMMAND config artifact github enable
+              $HAL_COMMAND config artifact github account add $ARTIFACT_ACCOUNT_NAME \
+                --token-file $TOKEN_FILE
+              EOF
+            "add-s3-artifact" = <<-EOF
+              $HAL_COMMAND config artifact s3 enable
+              $HAL_COMMAND config artifact s3 account add ${var.s3_helm_chart_bucket} \
+                --region us-west-2
+              EOF
+          }
+        }
+        additionalSecrets = {
+          create = true
+          data = {
+            "gh-token" = base64encode(var.gh_token)
+          }
+        }
+        additionalConfigMaps = {
+          create = true
+          data = {
+            "env.sh" = <<-EOF
+              TOKEN_FILE=/opt/halyard/additionalSecrets/gh-token
+              ARTIFACT_ACCOUNT_NAME=${var.gh_account}            
+              EOF
+          }
+        }
+      }
     })
   ]
 

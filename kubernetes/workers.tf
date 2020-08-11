@@ -71,3 +71,28 @@ resource "aws_iam_role_policy_attachment" "external_dns_node_group" {
   policy_arn = aws_iam_policy.external_dns_node_group.arn
   role       = aws_iam_role.node_group.name
 }
+
+
+data "aws_iam_policy_document" "read_helm_charts" {
+  statement {
+    actions = [
+      "s3:*",
+    ]
+    resources = [
+      "arn:aws:s3:::${var.s3_helm_chart_bucket}",
+      "arn:aws:s3:::${var.s3_helm_chart_bucket}/*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "read_helm_charts" {
+  name   = "spinnaker-read-helm-charts"
+  policy = data.aws_iam_policy_document.read_helm_charts.json
+}
+
+resource "aws_iam_role_policy_attachment" "read_helm_charts" {
+  policy_arn = aws_iam_policy.read_helm_charts.arn
+  role       = aws_iam_role.node_group.name
+}
+
+
