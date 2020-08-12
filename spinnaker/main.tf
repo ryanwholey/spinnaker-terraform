@@ -8,6 +8,16 @@ resource "spinnaker_pipeline" "test_app" {
   name        = "Test App"
   pipeline = <<-EOF
 {
+  "id": "91cda2b7-e33b-4f35-8df0-01bac52cda86",
+  "metadata": {
+    "description": "A pipeline template derived from pipeline \"Test App\" in application \"test-app\"",
+    "name": "tender-dolphin-43",
+    "owner": "rjwholey@gmail.com",
+    "scopes": [
+      "global"
+    ]
+  },
+  "pipeline": {
     "appConfig": {},
     "expectedArtifacts": [
       {
@@ -83,12 +93,28 @@ resource "spinnaker_pipeline" "test_app" {
           "app": "test-app"
         },
         "name": "Deploy (Manifest)",
+        "notifications": [
+          {
+            "address": "dev-spinnaker",
+            "level": "stage",
+            "message": {
+              "stage.complete": {
+                "text": "Spinnaker has deployed test-app"
+              }
+            },
+            "type": "slack",
+            "when": [
+              "stage.complete"
+            ]
+          }
+        ],
         "refId": "1",
         "requiredArtifactIds": [],
         "requiredArtifacts": [],
         "requisiteStageRefIds": [
           "2"
         ],
+        "sendNotifications": true,
         "skipExpressionEvaluation": false,
         "source": "artifact",
         "trafficManagement": {
@@ -146,8 +172,12 @@ resource "spinnaker_pipeline" "test_app" {
         "type": "docker"
       }
     ],
-    "updateTs": "1597121227000"
-  }
+    "updateTs": "1597184010000"
+  },
+  "protect": false,
+  "schema": "v2",
+  "variables": []
+}
 EOF
 }
 

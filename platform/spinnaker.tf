@@ -115,20 +115,30 @@ resource "helm_release" "spinnaker" {
               $HAL_COMMAND config artifact s3 account add ${var.s3_helm_chart_bucket} \
                 --region us-west-2
               EOF
+            "add-slack-notification" = <<-EOF
+              source /opt/halyard/additionalConfigMaps/env.sh
+
+              $HAL_COMMAND config notification slack enable 
+              echo $TOKEN_FROM_SLACK | $HAL_COMMAND config notification slack edit \
+                --bot-name spinnaker \
+                --token
+              EOF
           }
         }
         additionalSecrets = {
           create = true
           data = {
-            "gh-token" = base64encode(var.gh_token)
+            "gh-token"    = base64encode(var.gh_token)
+            "slack-token" = base64encode(var.slack_token)
           }
         }
         additionalConfigMaps = {
           create = true
           data = {
             "env.sh" = <<-EOF
-              TOKEN_FILE=/opt/halyard/additionalSecrets/gh-token
-              ARTIFACT_ACCOUNT_NAME=${var.gh_account}            
+              export TOKEN_FILE=/opt/halyard/additionalSecrets/gh-token
+              export ARTIFACT_ACCOUNT_NAME=${var.gh_account}         
+              export TOKEN_FROM_SLACK=$(cat /opt/halyard/additionalSecrets/slack-token)
               EOF
           }
         }
