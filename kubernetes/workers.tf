@@ -79,8 +79,7 @@ data "aws_iam_policy_document" "read_helm_charts" {
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::${var.s3_helm_chart_bucket}",
-      "arn:aws:s3:::${var.s3_helm_chart_bucket}/*",
+      "arn:aws:s3:::${var.allowed_bucket_prefix}*",
     ]
   }
 }

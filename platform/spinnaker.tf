@@ -142,85 +142,47 @@ resource "helm_release" "spinnaker" {
               EOF
           }
         }
+        additionalProfileConfigMaps = {
+          create = true
+          data = {
+            "echo-local.yml" = yamlencode({
+              spinnaker = {
+                baseUrl = "https://spinnaker.${var.hosted_zone}"
+              }
+            })
+          }
+        }
+      }
+      ingress = {
+        enabled = true
+        host = "spinnaker.${var.hosted_zone}"
+        annotations = {
+          "kubernetes.io/ingress.class" = "nginx"
+        }
+        tls = [
+          {
+            hosts = [
+              "spinnaker.${var.hosted_zone}"
+            ]
+          }
+        ]
+      }
+      ingressGate = {
+        enabled = true
+        host = "spinnaker-gateway.${var.hosted_zone}"
+        annotations = {
+          "kubernetes.io/ingress.class" = "nginx"
+        }
+        tls = [
+          {
+            hosts = [
+              "spinnaker-gateway.${var.hosted_zone}"
+            ]
+          }
+        ]
       }
     })
   ]
 
   depends_on = [kubernetes_cluster_role_binding.spinnaker]
-}
-
-data "kubernetes_service" "spin_deck" {
-  metadata {
-    name      = "spin-deck"
-    namespace = helm_release.spinnaker.metadata[0].namespace
-  }
-}
-
-resource "kubernetes_ingress" "spinnaker" {
-  metadata {
-    name = "spinnaker"
-    annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
-    }
-  }
-
-  spec {
-    rule {
-      host = "spinnaker.${var.hosted_zone}"
-      http {
-        path {
-          backend {
-            service_name = data.kubernetes_service.spin_deck.metadata[0].name
-            service_port = data.kubernetes_service.spin_deck.spec[0].port[0].port
-          }
-
-          path = "/"
-        }
-      }
-    }
-
-    tls {
-      hosts = [
-        "spinnaker.${var.hosted_zone}"
-      ]
-    }
-  }
-}
-
-data "kubernetes_service" "spin_gate" {
-  metadata {
-    name      = "spin-gate"
-    namespace = helm_release.spinnaker.metadata[0].namespace
-  }
-}
-
-resource "kubernetes_ingress" "spinnaker_gateway" {
-  metadata {
-    name = "spinnaker-gateway"
-    annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
-    }
-  }
-
-  spec {
-    rule {
-      host = "spinnaker-gateway.${var.hosted_zone}"
-      http {
-        path {
-          backend {
-            service_name = data.kubernetes_service.spin_gate.metadata[0].name
-            service_port = data.kubernetes_service.spin_gate.spec[0].port[0].port
-          }
-
-          path = "/"
-        }
-      }
-    }
-
-    tls {
-      hosts = [
-        "spinnaker-gateway.${var.hosted_zone}"
-      ]
-    }
-  }
 }

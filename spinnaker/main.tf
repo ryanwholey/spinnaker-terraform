@@ -5,194 +5,172 @@ resource "spinnaker_application" "test_app" {
 
 resource "spinnaker_pipeline" "test_app" {
   application = spinnaker_application.test_app.application
-  name        = "Test App"
+  name        = "Terraform Test App"
   pipeline = <<-EOF
-{
-  "id": "91cda2b7-e33b-4f35-8df0-01bac52cda86",
-  "metadata": {
-    "description": "A pipeline template derived from pipeline \"Test App\" in application \"test-app\"",
-    "name": "tender-dolphin-43",
-    "owner": "rjwholey@gmail.com",
-    "scopes": [
-      "global"
-    ]
-  },
-  "pipeline": {
-    "appConfig": {},
-    "expectedArtifacts": [
-      {
-        "defaultArtifact": {
-          "artifactAccount": "wholey-helm-charts",
-          "id": "2c884bec-4dc6-4e3c-b34f-6c1787da0ee6",
-          "reference": "s3://wholey-helm-charts/test-app-helm-0.0.2.tgz",
-          "type": "s3/object"
+    {
+      "expectedArtifacts": [
+        {
+          "defaultArtifact": {
+            "artifactAccount": "${var.s3_helm_chart_bucket}",
+            "id": "186ff6dd-76f0-4b44-a164-83bf6933e717",
+            "reference": "s3://${var.s3_helm_chart_bucket}/test-app-helm-0.0.2.tgz",
+            "type": "s3/object"
+          },
+          "displayName": "test-app-helm-chart-0.0.2",
+          "id": "8072c2a7-b333-4297-81af-cfefd3487db1",
+          "matchArtifact": {
+            "artifactAccount": "${var.s3_helm_chart_bucket}",
+            "id": "e28b73e1-67a8-43eb-a63a-7f4ed0f27316",
+            "name": "s3://${var.s3_helm_chart_bucket}/test-app-helm-0.0.2.tgz",
+            "type": "s3/object"
+          },
+          "useDefaultArtifact": true,
+          "usePriorArtifact": false
         },
-        "displayName": "test-app-helm",
-        "id": "e035a0fc-0ad3-420f-b8da-e73e81c22309",
-        "matchArtifact": {
-          "artifactAccount": "wholey-helm-charts",
-          "id": "a44f4f31-3b4c-47d1-8c9d-3648b9623ae2",
-          "name": "s3://wholey-helm-charts/test-app-helm-0.0.2.tgz",
-          "type": "s3/object"
-        },
-        "useDefaultArtifact": true,
-        "usePriorArtifact": false
-      }
-    ],
-    "lastModifiedBy": "anonymous",
-    "stages": [
-      {
-        "account": "ryans-context",
-        "cloudProvider": "kubernetes",
-        "manifestArtifactAccount": "embedded-artifact",
-        "manifestArtifactId": "3547af64-d836-4340-bb32-f57112536e67",
-        "manifests": [
-          {
-            "apiVersion": "apps/v1",
-            "kind": "Deployment",
-            "metadata": {
-              "labels": {
-                "app.kubernetes.io/name": "manual-test-app"
+        {
+          "defaultArtifact": {
+            "artifactAccount": "docker-registry",
+            "id": "cc0678fd-9393-4655-a135-4c597193ac0e",
+            "name": "ryanwholey/test-app",
+            "reference": "ryanwholey/test-app",
+            "type": "docker/image"
+          },
+          "displayName": "test-app-docker",
+          "id": "cf0f5743-2107-4470-af6b-9f656fb9d4bd",
+          "matchArtifact": {
+            "artifactAccount": "docker-registry",
+            "id": "572df4da-d725-47fb-b85d-aff50651e109",
+            "name": "ryanwholey/test-app",
+            "type": "docker/image"
+          },
+          "useDefaultArtifact": true,
+          "usePriorArtifact": false
+        }
+      ],
+      "keepWaitingPipelines": false,
+      "lastModifiedBy": "anonymous",
+      "limitConcurrent": true,
+      "spelEvaluator": "v4",
+      "stages": [
+        {
+          "expectedArtifacts": [
+            {
+              "defaultArtifact": {
+                "customKind": true,
+                "id": "255e1869-c834-403d-b360-ad27fc83951f"
               },
-              "name": "manual-test-app"
-            },
-            "spec": {
-              "replicas": 3,
-              "selector": {
-                "matchLabels": {
-                  "app.kubernetes.io/name": "manual-test-app",
-                  "component": "server"
-                }
+              "displayName": "test-app-manifest",
+              "id": "71b2e98f-9a25-4eb3-a349-10220b33824e",
+              "matchArtifact": {
+                "id": "fc58b8d4-e91b-403a-84ce-446001ad71bd",
+                "name": "test-app-manifest",
+                "type": "embedded/base64"
               },
-              "template": {
-                "metadata": {
-                  "labels": {
-                    "app.kubernetes.io/name": "manual-test-app",
-                    "component": "server"
-                  }
-                },
-                "spec": {
-                  "containers": [
-                    {
-                      "image": "ryanwholey/test-app:2786764ffe67f4bd4e980465982ae7b44dd7f935",
-                      "imagePullPolicy": "IfNotPresent",
-                      "name": "manual-test-app",
-                      "ports": [
-                        {
-                          "containerPort": 3000
-                        }
-                      ]
-                    }
-                  ]
-                }
-              }
+              "useDefaultArtifact": false,
+              "usePriorArtifact": false
             }
-          }
-        ],
-        "moniker": {
-          "app": "test-app"
+          ],
+          "inputArtifacts": [
+            {
+              "account": "wholey-helm-charts",
+              "id": "8072c2a7-b333-4297-81af-cfefd3487db1"
+            }
+          ],
+          "name": "Bake (Manifest)",
+          "outputName": "test-app",
+          "overrides": {
+            "image.tag": "$${trigger['tag']}"
+          },
+          "notifications": [
+            {
+              "address": "${var.slack_channel}",
+              "level": "stage",
+              "type": "slack",
+              "when": [
+                "stage.starting"
+              ]
+            }
+          ],
+          "refId": "1",
+          "requisiteStageRefIds": [],
+          "templateRenderer": "HELM3",
+          "type": "bakeManifest",
+          "sendNotifications": true
         },
-        "name": "Deploy (Manifest)",
-        "notifications": [
-          {
-            "address": "dev-spinnaker",
-            "level": "stage",
-            "message": {
-              "stage.complete": {
-                "text": "Spinnaker has deployed test-app"
-              }
-            },
-            "type": "slack",
-            "when": [
-              "stage.complete"
-            ]
-          }
-        ],
-        "refId": "1",
-        "requiredArtifactIds": [],
-        "requiredArtifacts": [],
-        "requisiteStageRefIds": [
-          "2"
-        ],
-        "sendNotifications": true,
-        "skipExpressionEvaluation": false,
-        "source": "artifact",
-        "trafficManagement": {
-          "enabled": false,
-          "options": {
-            "enableTraffic": false,
-            "services": []
-          }
+        {
+          "failPipeline": true,
+          "instructions": "Approve this judgement",
+          "isNew": true,
+          "judgmentInputs": [],
+          "name": "Manual Judgment",
+          "notifications": [
+            {
+              "address": "${var.slack_channel}",
+              "level": "stage",
+              "type": "slack",
+              "when": [
+                "manualJudgment"
+              ]
+            }
+          ],
+          "refId": "2",
+          "requisiteStageRefIds": [
+            "1"
+          ],
+          "sendNotifications": true,
+          "type": "manualJudgment"
         },
-        "type": "deployManifest"
-      },
-      {
-        "expectedArtifacts": [
-          {
-            "defaultArtifact": {
-              "customKind": true,
-              "id": "2cde68c9-5164-4611-8173-4799fdb6438e"
-            },
-            "displayName": "test-app-manifest",
-            "id": "3547af64-d836-4340-bb32-f57112536e67",
-            "matchArtifact": {
-              "id": "834251fd-e337-4f7a-b14a-5e13259f6e0b",
-              "name": "test-app-manifest",
-              "type": "embedded/base64"
-            },
-            "useDefaultArtifact": false,
-            "usePriorArtifact": false
-          }
-        ],
-        "inputArtifacts": [
-          {
-            "account": "wholey-helm-charts",
-            "id": "e035a0fc-0ad3-420f-b8da-e73e81c22309"
-          }
-        ],
-        "name": "Bake (Manifest)",
-        "namespace": "default",
-        "outputName": "test-app",
-        "overrides": {
-          "image.tag": "$${trigger['tag']}"
-        },
-        "refId": "2",
-        "requisiteStageRefIds": [],
-        "templateRenderer": "HELM3",
-        "type": "bakeManifest"
-      }
-    ],
-    "triggers": [
-      {
-        "account": "dockerhub",
-        "enabled": true,
-        "organization": "ryanwholey",
-        "registry": "index.docker.io",
-        "repository": "ryanwholey/test-app",
-        "type": "docker"
-      }
-    ],
-    "updateTs": "1597184010000"
-  },
-  "protect": false,
-  "schema": "v2",
-  "variables": []
-}
-EOF
+        {
+          "account": "ryans-context",
+          "cloudProvider": "kubernetes",
+          "manifestArtifactAccount": "embedded-artifact",
+          "manifestArtifactId": "71b2e98f-9a25-4eb3-a349-10220b33824e",
+          "moniker": {
+            "app": "test-app"
+          },
+          "name": "Deploy (Manifest)",
+          "notifications": [
+            {
+              "address": "${var.slack_channel}",
+              "level": "stage",
+              "type": "slack",
+              "when": [
+                "stage.complete",
+                "stage.failed"
+              ]
+            }
+          ],
+          "refId": "3",
+          "requiredArtifactIds": [],
+          "requiredArtifacts": [],
+          "requisiteStageRefIds": [
+            "2"
+          ],
+          "skipExpressionEvaluation": false,
+          "source": "artifact",
+          "trafficManagement": {
+            "enabled": false,
+            "options": {
+              "enableTraffic": false,
+              "services": []
+            }
+          },
+          "type": "deployManifest",
+          "sendNotifications": true
+        }
+      ],
+      "triggers": [
+        {
+          "account": "dockerhub",
+          "enabled": true,
+          "organization": "ryanwholey",
+          "registry": "index.docker.io",
+          "repository": "ryanwholey/test-app",
+          "type": "docker"
+        }
+      ]
+    }
+  EOF
 }
 
-#   pipeline    = jsonencode({
-#     expectedArtifacts = []
-#     stages            = []
-#     triggers          = [
-#       {
-#         account      = "dockerhub"
-#         enabled      = true
-#         organization = "library"
-#         registry     = "index.docker.io"
-#         repository   = "ryanwholey/test-app"
-#         tag          = "latest"
-#         type         = "docker"
-#       }
-#     ]
-#   })
+
