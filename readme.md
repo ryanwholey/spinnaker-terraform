@@ -8,5 +8,4 @@
     - platform
     - spinnaker
 
-Note: There may be hard coded values still hanging out here and there. If you find that the terraform is not completely templatized via env vars, feel free to submit a PR!
-
+Note: There are still some hard coded values hanging out here and there. This means the terraform is not completely templatized via env vars. Sorry! Feel free to submit a PR!
