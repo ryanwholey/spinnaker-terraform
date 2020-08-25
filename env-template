@@ -1,0 +1,19 @@
+export AWS_PROFILE=<profile>
+export AWS_DEFAULT_REGION=us-west-2
+
+export TF_VAR_cluster=spinnaker
+export TF_VAR_hosted_zone=<aws-hosted-zone-tld>
+
+export TF_VAR_gh_account=<gh-account>
+export TF_VAR_gh_token=<token>
+
+export TF_VAR_s3_helm_chart_bucket=<helm-chart-bucket>
+export TF_VAR_slack_token=<token>
+export TF_VAR_allowed_bucket_prefix=<bucket-prefix-allowed-for-spiinnaker-ec2-instances>
+
+export KUBECONFIG=<path-to-project-root>/build/kubeconfig
+
+export TF_VAR_kubeconfig=$KUBECONFIG
+export TF_VAR_aws_profile=$AWS_PROFILE
+export TF_VAR_aws_default_region=$AWS_DEFAULT_REGION
+
